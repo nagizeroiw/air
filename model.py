@@ -21,7 +21,7 @@ except ImportError:
 
 def tf_log(writer, key, value, epoch):
     summary = tf.Summary(value=[tf.Summary.Value(tag=key, simple_value=value)])
-    writer.add_summary(summary)
+    writer.add_summary(summary, epoch)
 
 
 def make_train_valid_dataset(name, length=24, train_percentage=0.7):
@@ -101,16 +101,16 @@ if __name__ == '__main__':
     rnn_hid_dim = 64
     lr = 0.001
     batch_size = 256
-    num_epochs = 4000
+    num_epochs = 40
     grad_clip_rate = 0.5
-    epoch_per_display = 20
-    output = './output/'
+    epoch_per_display = 4
+    output = './output/tf_log'
 
     train_dataset, valid_dataset, max_values = make_train_valid_dataset('bj_aq.npy', use_length)
     train_loader = DataLoader(train_dataset, batch_size, shuffle=True, num_workers=1)
     valid_loader = DataLoader(valid_dataset, batch_size, shuffle=True, num_workers=1)
-    train_writer = tf and tf.summary.FileWriter(os.path.join(output, '/tf_log/train/'))
-    valid_writer = tf and tf.summary.FileWriter(os.path.join(output, '/tf_log/valid/'))
+    train_writer = tf and tf.summary.FileWriter(os.path.join(output, 'train/'))
+    valid_writer = tf and tf.summary.FileWriter(os.path.join(output, 'valid/'))
 
     model = BaseModel(feature_dim, use_length, rnn_hid_dim)
     model = model.cuda()
@@ -162,9 +162,14 @@ if __name__ == '__main__':
     t = Variable(t, volatile=True).cuda()
     x, t = x.unsqueeze(0), t.unsqueeze(0)
     output = model(x)
+    output = output.squeeze(0)
     output = output.data
-    output = output * max_values
+    x, t = x.squeeze(0), t.squeeze(0)
+    current = np.multiply(x, max_values)
+    output = np.multiply(output, max_values)
+    target = np.multiply(t, max_values)
 
-    print(x)
-    print(t)
-    print(output)
+    print(current[2])
+    print(current[3])
+    print(target[2])
+    print(output[2])
