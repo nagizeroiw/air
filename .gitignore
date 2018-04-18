@@ -3,3 +3,4 @@ dataParser/
 *.npy
 *.npz
 tf_log/
+*.sh
