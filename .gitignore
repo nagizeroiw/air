@@ -1,0 +1,5 @@
+dataParser/
+*.json
+*.npy
+*.npz
+tf_log/
